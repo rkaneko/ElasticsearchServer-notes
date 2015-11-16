@@ -1,0 +1,14 @@
+{
+  "book" : {
+    "dynamic" : false,
+      "properties" : {
+        "id" : { "type" : "string" },
+        "author" : { "type" : "string" },
+        "characters": { "type": "string" },
+        "tags": { "type": "string" },
+        "title": { "type": "string" },
+        "year": { "type": "integer" },
+        "available": { "type": "boolean" }
+      }
+  }
+}

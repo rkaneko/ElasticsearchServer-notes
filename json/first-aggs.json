@@ -1,0 +1,14 @@
+{
+  "aggs": {
+    "years": {
+      "stats": {
+        "field": "year"
+      }
+    },
+    "words": {
+      "terms": {
+        "field": "copies"
+      }
+    }
+  }
+}
