@@ -1,0 +1,15 @@
+{
+  "aggs": {
+    "years": {
+      "date_range": {
+        "field": "published",
+        /* date format指定 */
+        "format": "year_month",
+        "ranges": [
+          { "to": "2009-12" },
+          { "from": "2010-01", "to": "2010-12" }
+        ]       
+      }
+    }
+  }
+}

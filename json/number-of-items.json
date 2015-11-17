@@ -1,0 +1,9 @@
+{
+  "aggs": {
+    "number_of_items": {
+      "value_count": {
+        "field": "characters"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "aggs": {
+    "min_year": {
+      "min": {
+        "field": "year",
+        "script": "_value - mod",
+        "params": {
+          "mod": 1000
+        }
+      }
+    }
+  }
+}

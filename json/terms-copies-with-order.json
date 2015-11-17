@@ -1,0 +1,13 @@
+{
+  "aggs": {
+    "availability": {
+      "terms": {
+        "field": "copies",
+        /* size で最大でどれだけのbucketを返せばよいかを指定できる */
+        "size": 40,
+        /* _term を指定するとkey propertiesを使ってsorting指定できる */
+        "order": { "_term": "desc" }
+      }
+    }
+  }
+}

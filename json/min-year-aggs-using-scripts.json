@@ -1,0 +1,10 @@
+{
+  "aggs": {
+    "min_year": {
+      "min": {
+        /* field 指定ではなく,　field値を演算する */
+        "script": "doc['year'].value - 1000"
+      }
+    }
+  }
+}

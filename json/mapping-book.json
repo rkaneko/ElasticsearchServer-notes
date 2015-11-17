@@ -2,13 +2,14 @@
   "book" : {
     "dynamic" : false,
       "properties" : {
-        "id" : { "type" : "string" },
+        "id" : { "type" : "long" },
         "author" : { "type" : "string" },
         "characters": { "type": "string" },
         "tags": { "type": "string" },
         "title": { "type": "string" },
         "year": { "type": "integer" },
-        "available": { "type": "boolean" }
+        "available": { "type": "boolean" },
+        "copies": { "type": "integer" }
       }
   }
 }

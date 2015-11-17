@@ -1,0 +1,10 @@
+{ "index": { "_index": "example", "_type": "book", "_id": "1" } }
+{ "id": 1, "author": "J.K.Rowling", "characters": ["Harry Potter", "Ron Weasley", "Hermione Granger"], "tags": ["fantasy", "series"], "title": "Harry Potter and the Philosopher's Stone", "year": 1997, "available": true, "copies": 5 }
+{ "index": { "_index": "example", "_type": "book", "_id": "2" } }
+{ "id": 2, "author": "J.K.Rowling", "characters": ["Harry Potter", "Ron Weasley", "Hermione Granger"], "tags": ["fantasy", "series"], "title": "Harry Potter and the Chamber of Secrets", "year": 1998, "available": true, "copies": 4 }
+{ "index": { "_index": "example", "_type": "book", "_id": "3" } }
+{ "id": 3, "author": "J.K.Rowling", "characters": ["Harry Potter", "Ron Weasley", "Hermione Granger"], "tags": ["fantasy", "series"], "title": "Harry Potter and the Prisoner of Azkaban", "year": 1999, "available": false, "copies": 3 }
+{ "index": { "_index": "example", "_type": "book", "_id": "4" } }
+{ "id": 4, "author": "J.K.Rowling", "characters": ["Harry Potter", "Ron Weasley", "Hermione Granger"], "tags": ["fantasy", "series", "2-volumes"], "title": "Harry Potter and the Goblet of Fire - Part 1", "year": 2000, "available": true, "copies": 2 }
+{ "index": { "_index": "example", "_type": "book", "_id": "5" } }
+{ "id": 5, "author": "J.K.Rowling", "characters": ["Harry Potter", "Ron Weasley", "Hermione Granger"], "tags": ["fantasy", "series", "2-volumes"], "title": "Harry Potter and the Goblet of Fire - Part 2", "year": 2000, "available": false, "copies": 2 }

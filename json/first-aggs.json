@@ -1,13 +1,15 @@
 {
   "aggs": {
     "years": {
+      /* year field の統計情報を取得 */
       "stats": {
         "field": "year"
       }
     },
     "words": {
+      /* title field で使用されているtermsを集計 */
       "terms": {
-        "field": "copies"
+        "field": "title"
       }
     }
   }

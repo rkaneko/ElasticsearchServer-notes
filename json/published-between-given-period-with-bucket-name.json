@@ -1,0 +1,16 @@
+{
+  "aggs": {
+    "years": {
+      "range": {
+        "field": "year",
+        "ranges": [
+          /* key で bucket に名前を付ける */
+          { "key": "Before 20th century", "to": 2000 },
+          { "key": "from 1998 to 1999", "from": 1998, "to": 1999 },
+          { "key": "from 1988 to 2000", "from": 1998, "to": 2000 },
+          { "key": "After year 1997", "from": 1997 }
+        ]
+      }
+    }
+  }
+}

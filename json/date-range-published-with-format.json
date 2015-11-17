@@ -1,0 +1,16 @@
+{
+  "aggs": {
+    "years": {
+      "date_range": {
+        "field": "published",
+        /* date format指定 */
+        "format": "strict_date_optional_time",
+        "ranges": [
+          { "to": "2009-12-31" },
+          { "from": "2010-01-01", "to": "2010-12-31" },
+          { "from": "2011-01-01" }
+        ]       
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "aggs": {
+    "stats_year": {
+      "stats": {
+        "field": "year"
+      }
+    }
+  }
+}

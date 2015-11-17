@@ -1,0 +1,9 @@
+{
+  "aggs": {
+    "min_year": {
+      "min": {
+        "field": "year"
+      }
+    }
+  }
+}

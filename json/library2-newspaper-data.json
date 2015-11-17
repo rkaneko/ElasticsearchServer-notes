@@ -1,0 +1,8 @@
+{ "index":{"_index": "library2", "_type": "book", "_id": "1"} }
+{ "title": "Fishing news", "published": "2010-12-03T10:00:00", "copies": 3, "available": true }
+{ "index":{"_index": "library2", "_type": "book", "_id": "2"} }
+{ "title": "Kitting magazine", "published": "2010-11-07T11:32:00", "copies": 1, "available": true }
+{ "index":{"_index": "library2", "_type": "book", "_id": "3"} }
+{ "title": "The guardian", "published": "2009-07-13T04:33:00", "copies": 0, "available": false }
+{ "index":{"_index": "library2", "_type": "book", "_id": "4"} }
+{ "title": "Hadoop World", "published": "2012-01-01T04:00:00", "copies": 6, "available": true }

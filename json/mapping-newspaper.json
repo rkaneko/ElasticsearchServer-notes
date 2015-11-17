@@ -1,0 +1,16 @@
+{
+  "book" : {
+    "dynamic" : false,
+    /* _timestamp fieldは2.0でdeprecated */
+    "properties" : {
+      "id" : { "type" : "long" },
+      "title": { "type": "string" },
+      "published": {
+        "type": "date",
+        "format": "strict_date_optional_time"
+      },
+      "available": { "type": "boolean" },
+      "copies": { "type": "integer" }
+    }
+  }
+}
