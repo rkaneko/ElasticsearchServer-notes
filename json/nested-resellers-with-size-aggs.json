@@ -1,0 +1,16 @@
+{
+  "aggs": {
+    "resellers": {
+      "nested": {
+        "path": "resellers"
+      },
+      "aggs": {
+        "sizes": {
+          "terms": {
+            "field": "resellers.size"
+          }
+        }
+      }
+    }
+  }
+}

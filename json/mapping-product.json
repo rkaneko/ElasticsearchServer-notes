@@ -1,0 +1,15 @@
+{
+  "product": {
+    "properties": {
+      "id": { "type": "long" },
+      "product_name": { "type": "string" },
+      "resellers": {
+        "type": "nested",
+        "properties": {
+          "name": { "type": "string" },
+          "price": { "type": "double" }
+        }
+      }
+    }
+  }
+}

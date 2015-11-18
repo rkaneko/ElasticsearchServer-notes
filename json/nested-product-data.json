@@ -1,0 +1,4 @@
+{ "index": { "_index": "example", "_type": "product", "_id": "1" } }
+{ "id": 1, "product_name": "Toy A", "resellers": [ { "name": "Bob", "price": 10000.0 }, { "name": "Ken", "price": 9000.0 } ] }
+{ "index": { "_index": "example", "_type": "product", "_id": "2" } }
+{ "id": 2, "product_name": "Vegetable A", "resellers": [ { "name": "Bob", "price": 150.0 }, { "name": "Ken", "price": 200.0 }, { "name": "Becky", "price": 300.0 } ] }

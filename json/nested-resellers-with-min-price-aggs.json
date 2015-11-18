@@ -1,0 +1,12 @@
+{
+  "aggs": {
+    "resellers": {
+      "nested": {
+        "path": "resellers"
+      },
+      "aggs": {
+        "min_price": { "min": { "field": "resellers.price" } }
+      }
+    }
+  }
+}

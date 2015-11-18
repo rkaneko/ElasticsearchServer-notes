@@ -1,0 +1,9 @@
+{
+  "aggs": {
+    "variations": {
+      "nested": {
+        "path": "variation"
+      }
+    }
+  }
+}

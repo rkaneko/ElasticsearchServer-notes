@@ -1,0 +1,11 @@
+{
+  "aggs": {
+    "years": {
+      "date_histogram": {
+        "field": "published",
+        "format": "strict_date_optional_time",
+        "interval": "100d"
+      }
+    }
+  }
+}

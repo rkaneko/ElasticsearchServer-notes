@@ -1,0 +1,9 @@
+{
+  "aggs": {
+    "missing_title": {
+      "missing": {
+        "field": "title"
+      }
+    }
+  }
+}

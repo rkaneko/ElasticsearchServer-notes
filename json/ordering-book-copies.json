@@ -1,0 +1,13 @@
+{
+  "aggs": {
+    "availability": {
+      "terms":  {
+        "field": "copies",
+        "order": { "numbers.avg": "desc" }
+      },
+      "aggs": {
+        "numbers": { "stats": {} }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  /* globalを使用しなくても,queryは書けるがnestが深くなる */
+  "aggs": {
+    "with_filter": {
+      "filter": {
+        "term": { "available": "true" }
+      },
+      "aggs": {
+        "copies": {
+          "value_count": {
+            "field": "copies"
+          }
+        }
+      }
+    },
+    "without_filter": {
+      "value_count": {
+        "field": "copies"
+      }
+    }
+  }
+}

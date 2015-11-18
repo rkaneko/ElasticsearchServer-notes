@@ -1,0 +1,12 @@
+{
+  "aggs": {
+    "availability": {
+      "terms": {
+        "field": "characters",
+        /* java.util.regex.Pattern の正規表現で指定 */
+        "include": "h.*", /* hで始まるものをtermsの対象に(hermione, harry) */
+        "exclude": "ha.*" /* haで始まるものはtermsの対象外に(harryは除かれる) */
+      }
+    }
+  }
+}

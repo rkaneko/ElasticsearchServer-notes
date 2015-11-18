@@ -874,18 +874,744 @@ $ curl -XGET 'http://localhost:9200/library2/book/_search?search_type=count&pret
 ```
 
 ### IPv4 range aggregation
+
+Internet address に関するaggregation。Elasticsearchでは2.0時点では、IPv6 typeはサポートされていない。
+https://www.elastic.co/guide/en/elasticsearch/reference/2.0/ip.html
+
+ip typeでは、CIDR表記によるIP rangeを定義できる。
+
+ip_range aggregationは次のようになる。
+
+```js
+{
+  "aggs": {
+    "access": {
+      "ip_range": {
+        "field": "ip",
+        "ranges": [
+          { "from": "192.168.0.1", "to": "192.168.0.254" },
+          { "mask": "192.168.1.0/24" }
+        ]
+      }
+    }
+  }
+}
+```
+
+responseは次のようになる。
+
+```js
+{
+  "aggs": {
+    "access": {
+      "ip_range": {
+        "field": "ip",
+        "ranges": [
+          { "from": "192.168.0.1", "to": "192.168.0.254" },
+          { "mask": "192.168.1.0/24" }
+        ]
+      }
+    }
+  }
+}
+```
+
 ### The missing aggregation
+
+あるfieldデータが定義されていないdocumentがいくつあるか確認したい場合、missing aggregationを用いる。
+
+```bash
+# create an index
+$ curl -XPUT 'http://localhost:9200/library/'
+# define mapping
+$ curl -XPUT 'http://localhost:9200/library/book/_mapping' -d @json/mapping-book.json
+# upsert example data
+$ curl -XPOST 'http://localhost:9200/_bulk' --data-binary @json/library-book-data.json
+
+# see data
+$ curl -XGET 'http://localhost:9200/library/book/_search?q=*:*&pretty' | jq '.hits.hits[]._source'
+```
+
+「炎のゴブレット」×2だけ日本語タイトル(title field)が空とする。
+これを確認するaggregationは次のようになる。
+
+```js
+{
+  "aggs": {
+    "missing_title": {
+      "missing": {
+        "field": "title"
+      }
+    }
+  }
+}
+```
+
+```bash
+$ curl -XGET 'http://localhost:9200/library/book/_search?search_type=count&pretty' \
+-d @json/missing-title-aggs.json | jq '.aggregations'
+
+{
+  "missing_title": {
+    "doc_count": 2
+  }
+}
+```
+
+#### Note
+
+missing aggregationからわかることは、mapping definitionに `null_value`が定義されていて、｀null_value`は独立して数える必要があるということ。
+
 ### Nested aggregation
+
+Chapter4でnested objectについて学んだ。ココでは、nested aggregationについて学ぶ。
+
+例えば次のようなaggregationが考えられる。
+
+```js
+{
+  "aggs": {
+    "variations": {
+      "nested": {
+        "path": "variation"
+      }
+    }
+  }
+}
+```
+
+次のようなレスポンスが得られたら、`variation` typeの与えられたindexに、2つのnestしたdocumentがあるということ。
+
+```js
+{
+  "variations": {
+    "doc_count": 2
+  }
+}
+```
+
 ### The histogram aggregation
+
+histogram aggregationはbucketsを定義するaggregationの一つ。
+次のようになる。
+
+```js
+{
+  "aggs": {
+    "years": {
+      "histogram": {
+        "field": "year",
+        /* bucketsをつくるために使うrangeを定義 */
+        "interval": 100
+      }
+    }
+  }
+}
+```
+
+```bash
+$ curl -XGET 'http://localhost:9200/library/book/_search?search_type=count&pretty' \
+-d @json/histogram-year-aggs.json | jq '.aggregations'
+{
+  "years": {
+    "buckets": [
+      {
+        "doc_count": 3,
+        "key": 1900
+      },
+      {
+        "doc_count": 2,
+        "key": 2000
+      }
+    ]
+  }
+}
+```
+
++ `keyd` property: key propertyを指定。
++ `min_doc_count` property: bucketsを構成する最小のdocument数。`0`を指定すると、bucketsを構成するdocumentの数が0のものも含んだレスポンスを返す。
+
 ### The date_histogram aggregation
+
+ranga aggregationのspecial form。date typeのためのhistogram aggragation。
+
+```js
+{
+  "aggs": {
+    "years": {
+      "date_histogram": {
+        "field": "published",
+        "format": "strict_date_optional_time",
+        "interval": "100d"
+      }
+    }
+  }
+}
+```
+
++ `format` propertyは必須ではない。
++ `keyed`, `min_doc_count` propertyも使える。
+
+100日間隔でdocumentをカウントする。
+
+```bash
+$ curl -XGET 'http://localhost:9200/library2/book/_search?search_type=count&pretty' \
+-d @json/date-histogram-year.json | jq '.aggregations'
+{
+  "years": {
+    "buckets": [
+      {
+        "doc_count": 1,
+        "key": 1.24416e+12,
+        "key_as_string": "2009-06-05T00:00:00.000Z"
+      },
+      {
+        "doc_count": 0,
+        "key": 1.2528e+12,
+        "key_as_string": "2009-09-13T00:00:00.000Z"
+      },
+      {
+        "doc_count": 0,
+        "key": 1.26144e+12,
+        "key_as_string": "2009-12-22T00:00:00.000Z"
+      },
+      {
+        "doc_count": 0,
+        "key": 1.27008e+12,
+        "key_as_string": "2010-04-01T00:00:00.000Z"
+      },
+      {
+        "doc_count": 0,
+        "key": 1.27872e+12,
+        "key_as_string": "2010-07-10T00:00:00.000Z"
+      },
+      {
+        "doc_count": 2,
+        "key": 1.28736e+12,
+        "key_as_string": "2010-10-18T00:00:00.000Z"
+      },
+      {
+        "doc_count": 0,
+        "key": 1.296e+12,
+        "key_as_string": "2011-01-26T00:00:00.000Z"
+      },
+      {
+        "doc_count": 0,
+        "key": 1.30464e+12,
+        "key_as_string": "2011-05-06T00:00:00.000Z"
+      },
+      {
+        "doc_count": 0,
+        "key": 1.31328e+12,
+        "key_as_string": "2011-08-14T00:00:00.000Z"
+      },
+      {
+        "doc_count": 1,
+        "key": 1.32192e+12,
+        "key_as_string": "2011-11-22T00:00:00.000Z"
+      }
+    ]
+  }
+}
+```
+
 #### Time zones
+
+ElasticsearchではUTC time zone ですべてのdateが保存される。
+
+表示用にtime zone を定義できる。Elasticsearchではコンバート方法が2つある。
+
++ elementに代入前にdateから適切なbucketに変換
++ elementに代入後に変換
+
+振る舞いを決める2つの属性値がある。
+
++ `pre_zone`
++ `post_zone`
+
+これに加えて、基本的に`pre_zone`をセットする`time_zone`という属性値もある。
+
+これらを使った3つの記法がある。
+
++ the hours offset ex)`pre_zone: -4` or `time_zone: 5`
++ the time format ex)`pre_zone: "-4:30"`
++ name of time zone ex)`time_zone: "Europe/Warsaw"`
+
+#### Note
+
+[available time zone: joda-time#timezones](http://joda-time.sourceforge.net/timezones/html)
+
 ### The geo_distance aggregation
+
+略
+
 ### The geohash_grid aggregation
+
+略
+
 # Nesting aggregations
+
+複雑なqueryを書くときに強力。
+nested aggregationは親aggregationの結果をさらに解析する。
+
+サンプル・データの準備
+
+```bash
+# create an index example
+$ curl -XPUT 'http://localhost:9200/example/
+# define mapping product type
+$ curl -XPUT 'http://localhost:9200/example/product/_mapping' \
+-d @json/mapping-product.json
+# upsert example data
+$ curl -XPOST 'http://localhost:9200/_bulk' --data-binary @json/nested-product-data.json
+# see data
+$ curl -XGET 'http://localhost:9200/example/product/_search?q=*:*&pretty' | jq '.hits.hits[]._source'
+{
+  "resellers": [
+    {
+      "price": 150,
+      "name": "Bob"
+    },
+    {
+      "price": 200,
+      "name": "Ken"
+    },
+    {
+      "price": 300,
+      "name": "Becky"
+    }
+  ],
+  "product_name": "Vegetable A",
+  "id": 2
+}
+{
+  "resellers": [
+    {
+      "price": 10000,
+      "name": "Bob"
+    },
+    {
+      "price": 9000,
+      "name": "Ken"
+    }
+  ],
+  "product_name": "Toy A",
+  "id": 1
+}
+```
+
+上のデータから、各documentのresellersのsizeの和を求めるqueryは次のようになる。
+
+```js
+{
+  "aggs": {
+    "resellers": {
+      "nested": {
+        "path": "resellers"
+      },
+      "aggs": {
+        "sizes": {
+          "terms": {
+            "field": "resellers.size"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+```bash
+$ curl -XGET 'http://localhost:9200/example/product/_search?search_type=count&pretty' \
+-d @json/nested-resellers-with-size-aggs.json | jq '.aggregations'
+
+{
+  "resellers": {
+    "sizes": {
+      "buckets": [],
+      "sum_other_doc_count": 0,
+      "doc_count_error_upper_bound": 0
+    },
+    "doc_count": 5
+  }
+}
+```
+
+すべてのdocumentから`resellers`プロパティの要素の`price`プロパティの最小値を求めるqueryは次のようになる。
+
+```js
+{
+  "aggs": {
+    "resellers": {
+      "nested": {
+        "path": "resellers"
+      },
+      "aggs": {
+        "min_price": { "min": { "field": "resellers.price" } }
+      }
+    }
+  }
+}
+```
+
+```bash
+$ curl -XGET 'http://localhost:9200/example/product/_search?search_type=count&pretty' \
+-d @json/nested-resellers-with-min-price-aggs.json | jq '.aggregations'
+
+{
+  "resellers": {
+    "min_price": {
+      "value": 150
+    },
+    "doc_count": 5
+  }
+}
+```
+
+年range別統計量を集計する。
+
+```js
+{
+  "aggs": {
+    "years": {
+      "range": {
+        "field": "year",
+        "ranges": [
+          { "from": 1997, "to": 1999 },
+          { "from": 1999, "to": 2001 }
+        ]
+      },
+      "aggs": {
+        "statistics": {
+          "stats": {}
+        }
+      }
+    }
+  }
+}
+```
+
+```bash
+$ curl -XGET 'http://localhost:9200/library/book/_search?search_type=count&pretty' \
+-d @json/nested-book-range-year-stats-aggs.json | jq '.aggregations.years.buckets[]'
+
+{
+  "statistics": {
+    "sum": 3995,
+    "avg": 1997.5,
+    "max": 1998,
+    "min": 1997,
+    "count": 2
+  },
+  "doc_count": 2,
+  "to_as_string": "1999.0",
+  "to": 1999,
+  "from_as_string": "1997.0",
+  "from": 1997,
+  "key": "1997.0-1999.0"
+}
+{
+  "statistics": {
+    "sum": 5999,
+    "avg": 1999.6666666666667,
+    "max": 2000,
+    "min": 1999,
+    "count": 3
+  },
+  "doc_count": 3,
+  "to_as_string": "2001.0",
+  "to": 2001,
+  "from_as_string": "1999.0",
+  "from": 1999,
+  "key": "1999.0-2001.0"
+}
+```
+
+特定のContext(親aggregation)の集計に便利！
+
+
 # Bucket ordering and nested aggregations
+
+bucketのkeysやdocument countでソートできるか？
+
+→　できる。nested aggregationの値も使える。
+
+`book#copies`のカウントをとって、統計情報をとって、子aggregationの統計量：平均で降順ソート。
+
+```js
+{
+  "aggs": {
+    "availability": {
+      "terms":  {
+        "field": "copies",
+        "order": { "numbers.avg": "desc" }
+      },
+      "aggs": {
+        "numbers": { "stats": {} }
+      }
+    }
+  }
+}
+```
+
+```bash
+$ curl -XGET 'http://localhost:9200/library/book/_search?search_type=count&pretty' \
+-d @json/ordering-book-copies.json | jq '.aggregations.availability.buckets[]'
+
+{
+  "numbers": {
+    "sum": 5,
+    "avg": 5,
+    "max": 5,
+    "min": 5,
+    "count": 1
+  },
+  "doc_count": 1,
+  "key": 5
+}
+{
+  "numbers": {
+    "sum": 4,
+    "avg": 4,
+    "max": 4,
+    "min": 4,
+    "count": 1
+  },
+  "doc_count": 1,
+  "key": 4
+}
+{
+  "numbers": {
+    "sum": 3,
+    "avg": 3,
+    "max": 3,
+    "min": 3,
+    "count": 1
+  },
+  "doc_count": 1,
+  "key": 3
+}
+{
+  "numbers": {
+    "sum": 4,
+    "avg": 2,
+    "max": 2,
+    "min": 2,
+    "count": 2
+  },
+  "doc_count": 2,
+  "key": 2
+}
+```
+
+
 # Global and subsets
+
+aggregation frameworkはすべてのindexから、queryでfilterしたデータを集計したり(subsets)、、反対にqueryを無視した集計(global)をすることできる。
+
+`library#book#copies`の値あるなしをcountする。subsetsとglobalの違いに注目。
+
+まず、データを確認。
+
+```bash
+$ curl -XGET 'http://localhost:9200/library/book/_search?pretty' | jq '.hits.hits[]._source' | jq '.otitle, .copies'
+"Harry Potter and the Goblet of Fire - Part 2"
+2
+"Harry Potter and the Chamber of Secrets"
+4
+"Harry Potter and the Goblet of Fire - Part 1"
+2
+"Harry Potter and the Philosopher's Stone"
+5
+"Harry Potter and the Prisoner of Azkaban"
+3
+```
+
+subsetsとglobalの違いをみるqueryは以下の通り。
+
+```js
+{
+  "query": {
+    /* 2.0.0-beta1でfiltered clauseはdeprecatedになっている */
+    "bool": {
+      "must": {
+        "match_all": {}
+      },
+      "filter": {
+        "term": {
+          "available": "true"
+        }
+      }
+    }
+  },
+  "aggs": {
+    /* global: query節は無視 */
+    "with_global": {
+      "global": {},
+      "aggs": {
+        "copies": {
+          "value_count": {
+            "field": "copies"
+          }
+        }
+      }
+    },
+    /* subsets: query節でfilterされたdocumentsから集計 */
+    "without_global": {
+      "value_count": {
+        "field": "copies"
+      }
+    }
+  }
+}
+```
+
+```bash
+$ curl -XGET 'http://localhost:9200/library/book/_search?search_type=count&pretty' \
+-d @json/global-subsets-filter-aggs.json | jq '.aggregations'
+
+{
+  "with_global": {
+    "copies": {
+      "value": 5
+    },
+    "doc_count": 5
+  },
+  "without_global": {
+    "value": 3
+  }
+}
+```
+
+globalを使わなくても、 queryは表現できる。
+
+```js
+{
+  /* globalを使用しなくても,queryは書けるがnestが深くなる */
+  "aggs": {
+    "with_filter": {
+      "filter": {
+        "term": { "available": "true" }
+      },
+      "aggs": {
+        "copies": {
+          "value_count": {
+            "field": "copies"
+          }
+        }
+      }
+    },
+    "without_filter": {
+      "value_count": {
+        "field": "copies"
+      }
+    }
+  }
+}
+```
+
+#### Note
+
++ [Filtered Query](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/query-dsl-filtered-query.html)
++ [The query/filter merge](https://www.elastic.co/blog/better-query-execution-coming-elasticsearch-2-0)
+
 ## Inclusions and exclusions
 
+terms aggregationには集計の数をより小さくできるオプションがある。
+
+→ include/exclude feature (string valueにてきようできる。)
+
+```js
+{
+  "aggs": {
+    "availability": {
+      "terms": {
+        "field": "characters",
+        /* java.util.regex.Pattern の正規表現で指定 */
+        "include": "h.*", /* hで始まるものをtermsの対象に(hermione, harry) */
+        "exclude": "ha.*" /* haで始まるものはtermsの対象外に(harryは除かれる) */
+      }
+    }
+  }
+}
+```
+
+```bash
+$ curl -XGET 'http://localhost:9200/library/book/_search?search_type=count&pretty' \
+-d @json/exclude-include.json | jq '.aggregations'
+{
+  "availability": {
+    "buckets": [
+      {
+        "doc_count": 5,
+        "key": "hermione"
+      }
+    ],
+    "sum_other_doc_count": 0,
+    "doc_count_error_upper_bound": 0
+  }
+}
+```
+
+# Faceting
 
 
+
+## The document structure
+## Returned results
+## Using queries for faceting calculations
+## Using filters for faceting calculations
+## Terms faceting
+## Ranges based faceting
+### Choosing different fields for an aggregated data calculation
+## Numerical and date histogram faceting
+### The date_histogram facet
+## Computing numerical field statistical data
+## Computing statistical data for terms
+## Geographical faceting
+## Filtering faceting results
+## Memory considerations
+# Using suggesters
+## Available suggester types
+## Including suggestions
+### The suggester response
+## The term suggester
+### The term suggester configuration options
+### Additional term suggester options
+## The phrase suggester
+### Configuration
+## The completion suggester
+### Indexing data
+### Querying the indexed completion suggester data
+### Custom weights
+# Percolator
+## The index
+## Percolator preparation
+## Getting deeper
+### Getting the number of matching queries
+### Indexed documents percolation
+# Handling files
+## Adding additional information about the file
+# Geo
+## Mappings preparation for spatial search
+## Example data
+## Sample queries
+### Distance-based sorting
+### Bounding box filtering
+### Limiting the distance
+## Arbitrary geo shapes
+### Point
+### Envelope
+### Polygon
+### Multipolygon
+### An example usage
+### Storing shapes in the index
+# The scroll API
+## Problem definition
+## Scrolling to the rescue
+# The terms filter
+##Terms lookup
+### The terms lookup query structure
+### Terms lookup cache settings
+# Summary
 

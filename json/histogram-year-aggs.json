@@ -1,0 +1,11 @@
+{
+  "aggs": {
+    "years": {
+      "histogram": {
+        "field": "year",
+        /* bucketsをつくるために使うrangeを定義 */
+        "interval": 100
+      }
+    }
+  }
+}

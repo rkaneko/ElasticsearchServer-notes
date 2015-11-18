@@ -1,0 +1,31 @@
+{
+  "query": {
+    "filtered": {
+      "query": {
+        "match_all": {}
+      },
+      "filter": {
+        "term": {
+          "available": "true"
+        }
+      }
+    }
+  },
+  "aggs": {
+    "with_global": {
+      "global": {},
+      "aggs": {
+        "copies": {
+          "value_count": {
+            "field": "copies"
+          }
+        }
+      }
+    },
+    "without_global": {
+      "value_count": {
+        "field": "copies"
+      }
+    }
+  }
+}
